@@ -318,6 +318,136 @@
 
 # laser_holography_simulation.py
 
+
+
+# import numpy as np
+# from PIL import Image
+# from scipy.signal import find_peaks
+# from scipy.fft import fft2, ifft2, fftfreq
+# from scipy.special import expit
+
+# class RefractiveIndexEstimator:
+#     def __init__(self):
+#         self.wavelength = 632.8e-9
+#         self.n_medium = 1.33
+#         self.sphere_diameter = 25.20e-6
+#         self.sphere_radius = self.sphere_diameter / 2
+
+#         self.object_area_size = 100e-6
+#         self.object_pixel_size = 0.2579e-6
+#         self.N = int(self.object_area_size / self.object_pixel_size)
+#         if self.N % 2 != 0:
+#             self.N += 1
+
+#         self.objective_NA = 0.75
+#         self.defocus_distance = 130e-6
+
+#         self.k = 2 * np.pi / self.wavelength
+#         self.actual_field_size = self.N * self.object_pixel_size
+
+#         self.setup_grids()
+
+#     def setup_grids(self):
+#         x = np.linspace(-self.actual_field_size / 2, self.actual_field_size / 2, self.N)
+#         y = np.linspace(-self.actual_field_size / 2, self.actual_field_size / 2, self.N)
+#         self.X, self.Y = np.meshgrid(x, y)
+#         fx = fftfreq(self.N, d=self.object_pixel_size)
+#         fy = fftfreq(self.N, d=self.object_pixel_size)
+#         self.FX, self.FY = np.meshgrid(fx, fy)
+#         self.k_perp_sq = self.FX**2 + self.FY**2
+
+#     def radial_profile(self, img, center=None, n_bins=150):
+#         y, x = np.indices(img.shape)
+#         if center is None:
+#             center = (img.shape[1] // 2, img.shape[0] // 2)
+#         r = np.sqrt((x - center[0])**2 + (y - center[1])**2)
+#         bin_edges = np.linspace(0, np.max(r), n_bins + 1)
+#         tbin, _ = np.histogram(r.ravel(), bins=bin_edges, weights=img.ravel())
+#         nr, _ = np.histogram(r.ravel(), bins=bin_edges)
+#         radialprofile = np.divide(tbin, nr, out=np.zeros_like(tbin, dtype=float), where=nr != 0)
+#         bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2 * self.object_pixel_size * 1e6
+#         return radialprofile, bin_centers
+
+#     def find_intensity_minima(self, radial_profile, r_centers, max_radius=50):
+#         mask = r_centers <= max_radius
+#         r_microns = r_centers[mask]
+#         profile = radial_profile[mask]
+#         inverted = -profile
+#         peaks, _ = find_peaks(inverted, distance=3, height=-np.inf)
+#         return r_microns[peaks] if len(peaks) > 0 else np.array([])
+
+#     def load_experimental_image(self, uploaded_file):
+#         img = Image.open(uploaded_file).convert("L")
+#         img = img.resize((self.N, self.N))  # resize for simulation grid match
+#         arr = np.array(img, dtype=np.float32)
+#         arr /= arr.max()
+#         return arr
+
+#     def create_sphere_field(self, n_sphere):
+#         incident_field = np.ones((self.N, self.N), dtype=complex)
+#         R_sphere = np.sqrt(self.X**2 + self.Y**2)
+#         edge_width = 0.4e-6
+#         mask = expit(-(R_sphere - self.sphere_radius) / edge_width)
+#         thickness = 2 * np.sqrt(np.clip(self.sphere_radius**2 - R_sphere**2, 0, None)) * mask
+#         phase_delay = self.k * (n_sphere - self.n_medium) * thickness
+#         scattered_field = np.exp(1j * phase_delay) - 1
+#         return incident_field + scattered_field
+
+#     def simulate_imaging_system(self, n_sphere):
+#         object_field = self.create_sphere_field(n_sphere)
+#         k_max = self.objective_NA / self.wavelength
+#         k_perp = np.sqrt(self.k_perp_sq)
+#         aperture = (k_perp <= k_max).astype(complex)
+#         object_spectrum = fft2(object_field)
+#         filtered_spectrum = object_spectrum * aperture
+#         field_after_objective = ifft2(filtered_spectrum)
+
+#         k0_sq = (1 / self.wavelength)**2
+#         kz = np.zeros_like(self.k_perp_sq, dtype=complex)
+#         propagating = self.k_perp_sq <= k0_sq
+#         evanescent = ~propagating
+#         kz[propagating] = np.sqrt(k0_sq - self.k_perp_sq[propagating])
+#         kz[evanescent] = 1j * np.sqrt(self.k_perp_sq[evanescent] - k0_sq)
+
+#         H = np.exp(1j * 2 * np.pi * self.defocus_distance * kz)
+#         field_ft = fft2(field_after_objective)
+#         propagated_ft = field_ft * H
+#         field_at_sensor = ifft2(propagated_ft)
+#         intensity = np.abs(field_at_sensor)**2
+
+#         corner_size = 20
+#         background_intensity = np.mean([
+#             intensity[:corner_size, :corner_size],
+#             intensity[:corner_size, -corner_size:],
+#             intensity[-corner_size:, :corner_size],
+#             intensity[-corner_size:, -corner_size:]
+#         ])
+#         return intensity / background_intensity
+
+#     def cost_function(self, n_sphere, exp_minima_positions, n_bins=300):
+#         sim_intensity = self.simulate_imaging_system(n_sphere)
+#         sim_radial_profile, sim_r_centers = self.radial_profile(sim_intensity, n_bins=n_bins)
+#         sim_minima_positions = self.find_intensity_minima(sim_radial_profile, sim_r_centers)
+#         n_minima = min(5, len(exp_minima_positions), len(sim_minima_positions))
+#         if n_minima == 0:
+#             return np.inf, sim_minima_positions
+#         cost = np.sum((exp_minima_positions[:n_minima] - sim_minima_positions[:n_minima])**2)
+#         return cost, sim_minima_positions
+
+#     def optimize_refractive_index(self, exp_minima_positions, n_bins=300):
+#         n_values = np.arange(1.4800, 1.5400, 0.0002)
+#         costs = []
+#         all_sim_minima = []
+#         for n in n_values:
+#             cost, sim_minima = self.cost_function(n, exp_minima_positions, n_bins=n_bins)
+#             costs.append(cost)
+#             all_sim_minima.append(sim_minima)
+#         best_idx = np.argmin(costs)
+#         return n_values[best_idx], costs[best_idx], all_sim_minima[best_idx], n_values, costs
+
+
+
+
 import numpy as np
 from PIL import Image
 from scipy.signal import find_peaks
