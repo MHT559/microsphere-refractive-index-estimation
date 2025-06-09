@@ -84,7 +84,7 @@ def main():
 
     if st.button("Run Simulation"):
         # Run simulation
-        simulator = HolographySimulator(
+        simulator = RefractiveIndexEstimator(
             particle_diameter=particle_diameter,
             medium_index=medium_index,
             defocus_distance=defocus_distance,
