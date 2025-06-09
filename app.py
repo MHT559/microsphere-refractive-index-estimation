@@ -58,7 +58,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 from scipy.ndimage import zoom
-from laser_holography_simulation import HolographySimulator
+from laser_holography_simulation import RefractiveIndexEstimator
 
 def extract_radial_profile(image):
     center = tuple(np.array(image.shape) // 2)
