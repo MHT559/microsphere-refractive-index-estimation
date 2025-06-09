@@ -78,11 +78,11 @@ class RefractiveIndexEstimator:
         else:
             return np.array([])
 
-    def load_experimental_image(self, filename):
+    #def load_experimental_image(self, filename):
         #real_img = Image.open("FOV6 130um defocus_cropped.jpg").convert("L")
-        real_np = np.array(real_img, dtype=np.float32)
-        real_np /= real_np.max()
-        return real_np
+        # real_np = np.array(real_img, dtype=np.float32)
+        # real_np /= real_np.max()
+        # return real_np
 
     def create_sphere_field(self, n_sphere):
         incident_field = np.ones((self.N, self.N), dtype=complex)
@@ -164,7 +164,7 @@ N_BINS = 150  # Set your desired radial resolution here
 estimator = RefractiveIndexEstimator()
 
 print("1. Loading experimental image...")
-exp_image = estimator.load_experimental_image("MS glycerine defocused 100mic fov3_cropped_left_1.jpg")
+# exp_image = estimator.load_experimental_image("MS glycerine defocused 100mic fov3_cropped_left_1.jpg")
 
 print("2. Extracting experimental radial profile...")
 exp_radial_profile, exp_r_centers = estimator.radial_profile(exp_image, n_bins=N_BINS)
