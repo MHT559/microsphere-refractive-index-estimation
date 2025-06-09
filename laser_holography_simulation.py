@@ -79,7 +79,7 @@ class RefractiveIndexEstimator:
             return np.array([])
 
     def load_experimental_image(self, filename):
-        real_img = Image.open("FOV6 130um defocus_cropped.jpg").convert("L")
+        #real_img = Image.open("FOV6 130um defocus_cropped.jpg").convert("L")
         real_np = np.array(real_img, dtype=np.float32)
         real_np /= real_np.max()
         return real_np
