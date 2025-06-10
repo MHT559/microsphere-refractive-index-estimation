@@ -85,13 +85,22 @@ def main():
     if st.button("Run Simulation"):
         # Run simulation
         simulator = RefractiveIndexEstimator(
-            particle_diameter=particle_diameter,
-            medium_index=medium_index,
-            defocus_distance=defocus_distance,
-            wavelength=wavelength,
-            pixel_size=pixel_size,
-            object_na=object_na
-        )
+                sphere_diameter=particle_diameter,
+                n_medium=medium_index,
+                defocus_distance=defocus_distance,
+                wavelength=wavelength,
+                object_pixel_size=pixel_size,
+                objective_NA=object_na
+            )
+
+        # simulator = RefractiveIndexEstimator(
+        #     particle_diameter=particle_diameter,
+        #     medium_index=medium_index,
+        #     defocus_distance=defocus_distance,
+        #     wavelength=wavelength,
+        #     pixel_size=pixel_size,
+        #     object_na=object_na
+        #)
         simulated_image = simulator.simulate()
 
         # Display simulated image
