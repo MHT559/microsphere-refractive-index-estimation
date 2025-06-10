@@ -79,7 +79,8 @@ def main():
     wavelength = st.number_input("Laser Wavelength (nm)", min_value=400.0, max_value=800.0, value=632.8) * 1e-9
     pixel_size = st.number_input("Pixel Size in Object Plane (µm)", min_value=0.01, max_value=10.0, value=0.2579) * 1e-6
     object_na = st.number_input("Object Numerical Aperture", min_value=0.1, max_value=1.5, value=0.75)
-
+    n_sphere = st.number_input("Sphere Refractive Index", min_value=1.4, max_value=1.7, value=1.50)
+    
     uploaded_file = st.file_uploader("Upload Experimental Image", type=["png", "jpg", "jpeg"])
 
     if st.button("Run Simulation"):
