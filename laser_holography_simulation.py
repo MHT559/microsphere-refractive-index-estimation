@@ -693,14 +693,32 @@ class RefractiveIndexEstimator:
         cost = np.sum((exp_minima_positions[:n_minima] - sim_minima_positions[:n_minima])**2)
         return cost, sim_minima_positions
 
-    def optimize_refractive_index(self, exp_minima_positions, n_bins=300):
-        n_values = np.arange(1.4800, 1.5400, 0.0002)
+    # def optimize_refractive_index(self, exp_minima_positions, n_bins=300):
+    #     n_values = np.arange(1.4800, 1.5400, 0.0002)
+    #     costs = []
+    #     all_sim_minima = []
+    #     for n in n_values:
+    #         cost, sim_minima = self.cost_function(n, exp_minima_positions, n_bins=n_bins)
+    #         costs.append(cost)
+    #         all_sim_minima.append(sim_minima)
+    #     best_idx = np.argmin(costs)
+    #     return n_values[best_idx], costs[best_idx], all_sim_minima[best_idx], n_values, costs
+
+     def optimize_refractive_index(self, exp_minima_positions, n_bins=300):
+        n_values = np.arange(1.4800, 1.5399, 0.0001)
         costs = []
         all_sim_minima = []
-        for n in n_values:
-            cost, sim_minima = self.cost_function(n, exp_minima_positions, n_bins=n_bins)
+        print("Optimizing refractive index...")
+        print("n_sphere | Cost")
+        print("-" * 20)
+        for i, n_sphere in enumerate(n_values):
+            cost, sim_minima = self.cost_function(n_sphere, exp_minima_positions, n_bins=n_bins)
             costs.append(cost)
             all_sim_minima.append(sim_minima)
+            if i % 20 == 0:
+                print(f"{n_sphere:.3f}   | {cost:.6f}")
         best_idx = np.argmin(costs)
-        return n_values[best_idx], costs[best_idx], all_sim_minima[best_idx], n_values, costs
-
+        best_n = n_values[best_idx]
+        best_cost = costs[best_idx]
+        best_sim_minima = all_sim_minima[best_idx]
+        return best_n, best_cost, best_sim_minima, n_values, costs
