@@ -708,15 +708,15 @@ class RefractiveIndexEstimator:
         n_values = np.arange(1.4800, 1.5399, 0.0001)
         costs = []
         all_sim_minima = []
-        print("Optimizing refractive index...")
-        print("n_sphere | Cost")
-        print("-" * 20)
+        # print("Optimizing refractive index...")
+        # print("n_sphere | Cost")
+        # print("-" * 20)
         for i, n_sphere in enumerate(n_values):
             cost, sim_minima = self.cost_function(n_sphere, exp_minima_positions, n_bins=n_bins)
             costs.append(cost)
             all_sim_minima.append(sim_minima)
-            if i % 20 == 0:
-                print(f"{n_sphere:.3f}   | {cost:.6f}")
+            # if i % 20 == 0:
+            #     print(f"{n_sphere:.3f}   | {cost:.6f}")
         best_idx = np.argmin(costs)
         best_n = n_values[best_idx]
         best_cost = costs[best_idx]
