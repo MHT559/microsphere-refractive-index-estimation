@@ -101,7 +101,7 @@ def main():
         #     pixel_size=pixel_size,
         #     object_na=object_na
         #)
-        simulated_image = simulator.simulate()
+        simulated_image = simulator.simulate_imaging_system()
 
         # Display simulated image
         st.subheader("Simulated Hologram")
