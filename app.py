@@ -107,7 +107,7 @@ def main():
         # Display simulated image
         st.subheader("Simulated Hologram")
         fig1, ax1 = plt.subplots()
-        ax1.imshow(simulated_image, cmap='gray')
+        ax1.imshow(simulated_image, cmap='gray', vmin=0, vmax=2)
         ax1.set_title("Simulated Image")
         ax1.axis('off')
         st.pyplot(fig1)
